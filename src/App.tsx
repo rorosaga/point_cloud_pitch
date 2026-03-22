@@ -1,49 +1,21 @@
-import { useRef, useEffect, useCallback, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Scene } from './components/Scene';
 import type { ViewMode } from './components/Scene';
 import { FootballPitch } from './components/FootballPitch';
-import type { FootballPitchHandle } from './components/FootballPitch';
 import { Confetti } from './components/Confetti';
 import { CharacterSelect } from './components/CharacterSelect';
-import { usePointCloud } from './hooks/usePointCloud';
-import { PITCH_LENGTH, PITCH_WIDTH } from './lib/pitchConstants';
 
 function PitchWithData() {
-  const pitchRef = useRef<FootballPitchHandle>(null);
-
-  const handlePoints = useCallback((points: Float32Array) => {
-    pitchRef.current?.addPoints(points);
-  }, []);
-
-  usePointCloud(handlePoints);
-
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'd' || e.key === 'D') {
-        let progress = 0;
-        const interval = setInterval(() => {
-          const fakePoints = new Float32Array(300);
-          for (let i = 0; i < 100; i++) {
-            fakePoints[i * 3 + 0] = progress * PITCH_LENGTH + (Math.random() - 0.5) * 0.5;
-            fakePoints[i * 3 + 1] = (Math.random() - 0.5) * PITCH_WIDTH;
-            fakePoints[i * 3 + 2] = 0;
-          }
-          pitchRef.current?.addPoints(fakePoints);
-          progress += 0.02;
-          if (progress > 1) clearInterval(interval);
-        }, 50);
-      }
-    };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, []);
-
-  return <FootballPitch ref={pitchRef} />;
+  return (
+    <>
+      <FootballPitch />
+    </>
+  );
 }
 
 // Idle crowd ambient audio
-function useCrowdAudio(active: boolean) {
+function useCrowdAudio(active: boolean, muted: boolean) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -51,6 +23,7 @@ function useCrowdAudio(active: boolean) {
       const audio = new Audio('/idle_crowd.mp3');
       audio.loop = true;
       audio.volume = 0.3;
+      audio.muted = muted;
       audio.play().catch(() => {});
       audioRef.current = audio;
     }
@@ -61,6 +34,12 @@ function useCrowdAudio(active: boolean) {
       }
     };
   }, [active]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.muted = muted;
+    }
+  }, [muted]);
 }
 
 const viewButtons: { mode: ViewMode; label: string }[] = [
@@ -85,12 +64,13 @@ type Screen = 'select' | 'pitch';
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('select');
-  const [viewMode, setViewMode] = useState<ViewMode>('perspective');
+  const [viewMode, setViewMode] = useState<ViewMode>('side');
+  const [muted, setMuted] = useState(false);
 
-  useCrowdAudio(screen === 'pitch');
+  useCrowdAudio(true, muted);
 
   if (screen === 'select') {
-    return <CharacterSelect onReady={() => setScreen('pitch')} />;
+    return <CharacterSelect onReady={() => setScreen('pitch')} muted={muted} onToggleMute={() => setMuted(m => !m)} />;
   }
 
   return (
@@ -103,6 +83,32 @@ export default function App() {
           <PitchWithData />
         </Scene>
       </Canvas>
+
+      {/* Video stream overlay */}
+      <div style={{
+        position: 'fixed',
+        top: '15%',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 20,
+        borderRadius: 12,
+        overflow: 'hidden',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+        border: '2px solid rgba(0,0,0,0.1)',
+        pointerEvents: 'none',
+      }}>
+        <img
+          src="http://localhost:8080/stream"
+          alt="Video stream"
+          style={{
+            display: 'block',
+            width: 640,
+            height: 360,
+            objectFit: 'cover',
+            background: '#111',
+          }}
+        />
+      </div>
 
       {/* View mode buttons */}
       <div style={{
@@ -152,6 +158,31 @@ export default function App() {
         }}
       >
         ← Back
+      </button>
+
+      {/* Mute button */}
+      <button
+        onClick={() => setMuted(m => !m)}
+        style={{
+          position: 'fixed',
+          bottom: 16,
+          right: 16,
+          zIndex: 20,
+          width: 40,
+          height: 40,
+          border: 'none',
+          borderRadius: 10,
+          fontSize: 20,
+          cursor: 'pointer',
+          background: 'rgba(0,0,0,0.08)',
+          backdropFilter: 'blur(8px)',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {muted ? '🔇' : '🔊'}
       </button>
 
       <Confetti />

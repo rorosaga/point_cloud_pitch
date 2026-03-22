@@ -8,7 +8,7 @@ const CHARACTERS = [
 
 type Selection = { id: string; img: string } | null;
 
-export function CharacterSelect({ onReady }: { onReady: () => void }) {
+export function CharacterSelect({ onReady, muted, onToggleMute }: { onReady: () => void; muted: boolean; onToggleMute: () => void }) {
   const [p1, setP1] = useState<Selection>(null);
   const [p2, setP2] = useState<Selection>(null);
   const [p1Locked, setP1Locked] = useState(false);
@@ -185,6 +185,14 @@ export function CharacterSelect({ onReady }: { onReady: () => void }) {
           START
         </button>
       )}
+
+      {/* Mute button */}
+      <button
+        onClick={onToggleMute}
+        style={styles.muteBtn}
+      >
+        {muted ? '🔇' : '🔊'}
+      </button>
     </div>
   );
 }
@@ -316,6 +324,24 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 700,
     color: '#555',
     letterSpacing: 1,
+  },
+  muteBtn: {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
+    zIndex: 20,
+    width: 40,
+    height: 40,
+    border: 'none',
+    borderRadius: 10,
+    fontSize: 20,
+    cursor: 'pointer',
+    background: 'rgba(0,0,0,0.08)',
+    backdropFilter: 'blur(8px)',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   startBtn: {
     marginTop: 36,
