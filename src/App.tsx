@@ -105,14 +105,14 @@ export default function App() {
         border: '2px solid rgba(0,0,0,0.1)',
         pointerEvents: 'none',
       }}>
-        <img
+        <iframe
           src="/stream"
-          alt="Video stream"
+          title="Video stream"
           style={{
             display: 'block',
             width: 640,
             height: 360,
-            objectFit: 'cover',
+            border: 'none',
             background: '#111',
           }}
         />
