@@ -74,6 +74,7 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>('select');
   const [viewMode, setViewMode] = useState<ViewMode>('side');
   const [muted, setMuted] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
 
   useCrowdAudio(true, muted);
 
@@ -93,30 +94,32 @@ export default function App() {
       </Canvas>
 
       {/* Video stream overlay */}
-      <div style={{
-        position: 'fixed',
-        top: '15%',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: 20,
-        borderRadius: 12,
-        overflow: 'hidden',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-        border: '2px solid rgba(0,0,0,0.1)',
-        pointerEvents: 'none',
-      }}>
-        <iframe
-          src="/stream"
-          title="Video stream"
-          style={{
-            display: 'block',
-            width: 640,
-            height: 360,
-            border: 'none',
-            background: '#111',
-          }}
-        />
-      </div>
+      {showVideo && (
+        <div style={{
+          position: 'fixed',
+          top: '15%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 20,
+          borderRadius: 12,
+          overflow: 'hidden',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+          border: '2px solid rgba(0,0,0,0.1)',
+          pointerEvents: 'none',
+        }}>
+          <iframe
+            src="/stream"
+            title="Video stream"
+            style={{
+              display: 'block',
+              width: 640,
+              height: 360,
+              border: 'none',
+              background: '#111',
+            }}
+          />
+        </div>
+      )}
 
       {/* View mode buttons */}
       <div style={{
@@ -143,6 +146,30 @@ export default function App() {
           </button>
         ))}
       </div>
+
+      {/* Toggle video button */}
+      <button
+        onClick={() => setShowVideo(v => !v)}
+        style={{
+          position: 'fixed',
+          top: 16,
+          right: 16,
+          zIndex: 20,
+          padding: '8px 12px',
+          border: 'none',
+          borderRadius: 8,
+          fontSize: 18,
+          cursor: 'pointer',
+          background: 'rgba(0,0,0,0.08)',
+          color: '#333',
+          backdropFilter: 'blur(8px)',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
+          transition: 'all 0.2s',
+        }}
+        title={showVideo ? 'Hide video' : 'Show video'}
+      >
+        {showVideo ? '\u{25C9}' : '\u{25CE}'}
+      </button>
 
       {/* Back button */}
       <button
