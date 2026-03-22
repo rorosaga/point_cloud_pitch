@@ -5,6 +5,7 @@ import type { ViewMode } from './components/Scene';
 import { FootballPitch } from './components/FootballPitch';
 import type { FootballPitchHandle } from './components/FootballPitch';
 import { Confetti } from './components/Confetti';
+import { CharacterSelect } from './components/CharacterSelect';
 import { usePointCloud } from './hooks/usePointCloud';
 import { PITCH_LENGTH, PITCH_WIDTH } from './lib/pitchConstants';
 
@@ -17,7 +18,6 @@ function PitchWithData() {
 
   usePointCloud(handlePoints);
 
-  // Demo mode: press D to simulate a reveal sweep
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'd' || e.key === 'D') {
@@ -42,6 +42,27 @@ function PitchWithData() {
   return <FootballPitch ref={pitchRef} />;
 }
 
+// Idle crowd ambient audio
+function useCrowdAudio(active: boolean) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    if (active) {
+      const audio = new Audio('/idle_crowd.mp3');
+      audio.loop = true;
+      audio.volume = 0.3;
+      audio.play().catch(() => {});
+      audioRef.current = audio;
+    }
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, [active]);
+}
+
 const viewButtons: { mode: ViewMode; label: string }[] = [
   { mode: 'perspective', label: '3D' },
   { mode: 'side', label: 'Side' },
@@ -60,8 +81,17 @@ const btnStyle = (active: boolean): React.CSSProperties => ({
   transition: 'all 0.2s',
 });
 
+type Screen = 'select' | 'pitch';
+
 export default function App() {
+  const [screen, setScreen] = useState<Screen>('select');
   const [viewMode, setViewMode] = useState<ViewMode>('perspective');
+
+  useCrowdAudio(screen === 'pitch');
+
+  if (screen === 'select') {
+    return <CharacterSelect onReady={() => setScreen('pitch')} />;
+  }
 
   return (
     <>
@@ -74,6 +104,7 @@ export default function App() {
         </Scene>
       </Canvas>
 
+      {/* View mode buttons */}
       <div style={{
         position: 'fixed',
         top: 16,
@@ -98,6 +129,30 @@ export default function App() {
           </button>
         ))}
       </div>
+
+      {/* Back button */}
+      <button
+        onClick={() => setScreen('select')}
+        style={{
+          position: 'fixed',
+          top: 16,
+          left: 16,
+          zIndex: 20,
+          padding: '8px 16px',
+          border: 'none',
+          borderRadius: 8,
+          fontSize: 14,
+          fontWeight: 600,
+          cursor: 'pointer',
+          background: 'rgba(0,0,0,0.08)',
+          color: '#333',
+          backdropFilter: 'blur(8px)',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
+          transition: 'all 0.2s',
+        }}
+      >
+        ← Back
+      </button>
 
       <Confetti />
     </>

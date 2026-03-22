@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 import Particles, { initParticlesEngine } from '@tsparticles/react';
 import { loadSlim } from '@tsparticles/slim';
 import { loadEmittersPlugin } from '@tsparticles/plugin-emitters';
@@ -7,9 +7,10 @@ import type { ISourceOptions } from '@tsparticles/engine';
 const confettiOptions: ISourceOptions = {
   fullScreen: { zIndex: 1 },
   emitters: [
+    // Far left — highest rate
     {
       position: { x: 0, y: 30 },
-      rate: { quantity: 5, delay: 0.15 },
+      rate: { quantity: 3, delay: 0.3 },
       particles: {
         move: {
           direction: 'top-right',
@@ -17,9 +18,32 @@ const confettiOptions: ISourceOptions = {
         },
       },
     },
+    // Far right — highest rate
     {
       position: { x: 100, y: 30 },
-      rate: { quantity: 5, delay: 0.15 },
+      rate: { quantity: 3, delay: 0.3 },
+      particles: {
+        move: {
+          direction: 'top-left',
+          outModes: { top: 'none', right: 'none', default: 'destroy' },
+        },
+      },
+    },
+    // Mid-left — lower rate
+    {
+      position: { x: 15, y: 40 },
+      rate: { quantity: 1, delay: 0.5 },
+      particles: {
+        move: {
+          direction: 'top-right',
+          outModes: { top: 'none', left: 'none', default: 'destroy' },
+        },
+      },
+    },
+    // Mid-right — lower rate
+    {
+      position: { x: 85, y: 40 },
+      rate: { quantity: 1, delay: 0.5 },
       particles: {
         move: {
           direction: 'top-left',
@@ -36,7 +60,7 @@ const confettiOptions: ISourceOptions = {
       enable: true,
       gravity: { enable: true },
       outModes: { top: 'none', default: 'destroy' },
-      speed: { min: 10, max: 50 },
+      speed: { min: 10, max: 40 },
     },
     number: { value: 0 },
     opacity: { value: 1 },
@@ -71,7 +95,7 @@ const confettiOptions: ISourceOptions = {
   },
 };
 
-export function Confetti() {
+const ConfettiInner = memo(function ConfettiInner() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -84,4 +108,8 @@ export function Confetti() {
   if (!ready) return null;
 
   return <Particles id="tsparticles" options={confettiOptions} />;
+});
+
+export function Confetti() {
+  return <ConfettiInner />;
 }

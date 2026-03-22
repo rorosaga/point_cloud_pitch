@@ -7,8 +7,8 @@ export type ViewMode = 'perspective' | 'side' | 'topdown';
 
 const VIEW_TARGETS: Record<ViewMode, { pos: [number, number, number]; target: [number, number, number] }> = {
   perspective: { pos: [0, 8, 10], target: [0, 0, 0] },
-  side:        { pos: [-12, 6, 0], target: [0, 0, 0] },
-  topdown:     { pos: [0, 14, 0.01], target: [0, 0, 0] },
+  side:        { pos: [-8, 5, 0], target: [0, 0, 0] },
+  topdown:     { pos: [-8, 10, 0.01], target: [0, 0, 0] },
 };
 
 const LERP_SPEED = 3;
