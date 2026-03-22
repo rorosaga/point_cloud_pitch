@@ -1,4 +1,64 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, memo } from 'react';
+import Particles, { initParticlesEngine } from '@tsparticles/react';
+import { loadSlim } from '@tsparticles/slim';
+import type { ISourceOptions } from '@tsparticles/engine';
+
+const selectConfettiOptions: ISourceOptions = {
+  fullScreen: { zIndex: 1 },
+  particles: {
+    color: { value: ['#e63946', '#457b9d'] },
+    move: {
+      direction: 'bottom',
+      enable: true,
+      outModes: { default: 'out' },
+      size: true,
+      speed: { min: 1, max: 3 },
+    },
+    number: { value: 500, density: { enable: true, area: 800 } },
+    opacity: { value: 1 },
+    rotate: {
+      value: { min: 0, max: 360 },
+      direction: 'random',
+      move: true,
+      animation: { enable: true, speed: 60 },
+    },
+    tilt: {
+      direction: 'random',
+      enable: true,
+      move: true,
+      value: { min: 0, max: 360 },
+      animation: { enable: true, speed: 60 },
+    },
+    shape: {
+      type: ['circle', 'square', 'triangle', 'polygon'],
+      options: { polygon: [{ sides: 5 }, { sides: 6 }] },
+    },
+    size: { value: { min: 2, max: 4 } },
+    roll: {
+      darken: { enable: true, value: 30 },
+      enlighten: { enable: true, value: 30 },
+      enable: true,
+      speed: { min: 15, max: 25 },
+    },
+    wobble: {
+      distance: 30,
+      enable: true,
+      move: true,
+      speed: { min: -15, max: 15 },
+    },
+  },
+};
+
+const SelectConfetti = memo(function SelectConfetti() {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    initParticlesEngine(async (engine) => {
+      await loadSlim(engine);
+    }).then(() => setReady(true));
+  }, []);
+  if (!ready) return null;
+  return <Particles id="select-confetti" options={selectConfettiOptions} />;
+});
 
 const CHARACTERS = [
   { id: 'go1', name: 'Go1', img: '/go1.png' },
@@ -89,8 +149,14 @@ export function CharacterSelect({ onReady, muted, onToggleMute }: { onReady: () 
 
   return (
     <div style={styles.container}>
+      {/* Background confetti */}
+      <SelectConfetti />
+
       {/* Screen flash on select */}
       {flash && <div style={styles.flash} />}
+
+      {/* Content wrapper — above confetti */}
+      <div style={styles.content}>
 
       <h1 style={styles.title}>ROBO STRIKER</h1>
       <p style={styles.subtitle}>
@@ -193,6 +259,8 @@ export function CharacterSelect({ onReady, muted, onToggleMute }: { onReady: () 
       >
         {muted ? '🔇' : '🔊'}
       </button>
+
+      </div>{/* end content wrapper */}
     </div>
   );
 }
@@ -211,6 +279,14 @@ const styles: Record<string, React.CSSProperties> = {
     userSelect: 'none',
     position: 'relative',
     overflow: 'hidden',
+  },
+  content: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    zIndex: 2,
   },
   flash: {
     position: 'absolute',

@@ -14,7 +14,7 @@ function PitchWithData() {
   );
 }
 
-// Idle crowd ambient audio
+// Idle crowd ambient audio — resumes on first user interaction if autoplay is blocked
 function useCrowdAudio(active: boolean, muted: boolean) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -24,15 +24,23 @@ function useCrowdAudio(active: boolean, muted: boolean) {
       audio.loop = true;
       audio.volume = 0.3;
       audio.muted = muted;
-      audio.play().catch(() => {});
       audioRef.current = audio;
-    }
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
+
+      const tryPlay = () => {
+        audio.play().catch(() => {});
+      };
+
+      // Try immediately, and also on first click if blocked
+      tryPlay();
+      const onClick = () => { tryPlay(); document.removeEventListener('click', onClick); };
+      document.addEventListener('click', onClick);
+
+      return () => {
+        document.removeEventListener('click', onClick);
+        audio.pause();
         audioRef.current = null;
-      }
-    };
+      };
+    }
   }, [active]);
 
   useEffect(() => {
