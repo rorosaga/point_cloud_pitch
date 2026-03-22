@@ -106,7 +106,7 @@ export default function App() {
         pointerEvents: 'none',
       }}>
         <img
-          src={`http://${window.location.hostname}:8080/stream`}
+          src="/stream"
           alt="Video stream"
           style={{
             display: 'block',
