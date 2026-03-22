@@ -92,7 +92,7 @@ export function CharacterSelect({ onReady, muted, onToggleMute }: { onReady: () 
       {/* Screen flash on select */}
       {flash && <div style={styles.flash} />}
 
-      <h1 style={styles.title}>CHOOSE YOUR FIGHTER</h1>
+      <h1 style={styles.title}>ROBO STRIKER</h1>
       <p style={styles.subtitle}>
         {currentPlayer === 1 && '⬅ PLAYER 1 — SELECT'}
         {currentPlayer === 2 && 'PLAYER 2 — SELECT ➡'}
@@ -221,11 +221,13 @@ const styles: Record<string, React.CSSProperties> = {
     animation: 'screenFlash 0.4s ease-out forwards',
   },
   title: {
-    fontSize: 52,
-    fontWeight: 900,
-    letterSpacing: 8,
+    fontFamily: "'Teko', sans-serif",
+    fontSize: 72,
+    fontWeight: 700,
+    letterSpacing: 12,
     margin: 0,
     color: '#111',
+    textTransform: 'uppercase' as const,
     animation: 'slideUp 0.6s ease-out',
   },
   subtitle: {
